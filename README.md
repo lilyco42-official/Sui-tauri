@@ -5,3 +5,4 @@
 - [bitnet MIT](https://github.com/microsoft/BitNet)
 [Tauri-tools  Apache-2.0](https://gitee.com/bikr/tauri-tools）
 [bitnet MIT](https://github.com/microsoft/BitNet)
+[tarui-action](https://github.com/tauri-apps/tauri-action)
