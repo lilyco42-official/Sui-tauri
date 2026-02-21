@@ -1,0 +1,223 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --header-height: 3rem;
+    --sidebar-width: 14rem;
+    --toolbar-height: 2.5rem;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    @apply select-none cursor-default text-base;
+  }
+
+  /* macOS 风格滚动条 */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-base-300 rounded-full;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-base-300;
+    border: 1.5px solid transparent;
+  }
+
+  /* macOS 文本选择 */
+  ::selection {
+    @apply bg-primary bg-opacity-20;
+  }
+}
+
+@layer components {
+  /* macOS 风格按钮 */
+  .btn {
+    @apply font-normal normal-case rounded-lg transition-all duration-200;
+    letter-spacing: -0.01em;
+  }
+
+  .btn-primary {
+    @apply shadow-sm;
+  }
+
+  .btn-ghost {
+    @apply hover:bg-base-200 hover:bg-opacity-80;
+  }
+
+  /* macOS 风格输入框 */
+  .input, 
+  .select, 
+  .textarea {
+    @apply bg-base-200 bg-opacity-80 rounded-lg border border-base-300;
+  }
+
+  .input:focus,
+  .input:focus-within,
+  .select:focus,
+  .select:focus-within,
+  .textarea:focus,
+  .textarea:focus-within {
+    outline: none;
+    border: var(--border) solid #0000;
+  }
+
+  /* 搜索框组合样式 */
+  .input-group {
+    @apply relative flex items-center;
+  }
+
+  .input-group .input {
+    @apply flex-1;
+  }
+
+  .input-group .btn {
+    @apply absolute right-0 z-10;
+  }
+
+  /* 确保按钮在输入框聚焦时保持可见 */
+  .input-group:focus-within .btn {
+    @apply opacity-100 visible;
+  }
+
+  /* macOS 风格卡片 */
+  .card {
+    @apply rounded-xl border border-base-200 border-opacity-50 bg-base-100 bg-opacity-70;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  /* macOS 风格下拉菜单 */
+  .dropdown-content {
+    @apply rounded-lg shadow-lg border border-base-200 border-opacity-50 bg-base-100 bg-opacity-80;
+    animation: dropdownSlide 0.2s ease-out;
+  }
+
+  /* macOS 风格模态框 */
+  .modal-box {
+    @apply rounded-xl shadow-2xl border-0 bg-base-100 bg-opacity-90;
+    animation: modalScale 0.3s ease-out;
+  }
+
+  /* macOS 风格开关 */
+  .toggle {
+    @apply bg-base-300 transition-all duration-300;
+  }
+
+  .toggle:checked {
+    @apply bg-primary border-0;
+  }
+
+  /* macOS 风格标签 */
+  .badge {
+    @apply font-normal rounded-lg px-2 text-sm;
+  }
+
+  /* macOS 风格菜单 */
+  .menu {
+    @apply rounded-lg bg-base-100 bg-opacity-80 p-1;
+  }
+
+  .menu li > * {
+    @apply rounded-lg transition-colors duration-200 text-sm py-1.5 px-3;
+  }
+
+  .menu li > *:hover {
+    @apply bg-base-200 bg-opacity-50;
+  }
+
+  /* macOS 风格工具栏 */
+  .toolbar {
+    @apply fixed top-0 left-0 right-0 h-[var(--header-height)] bg-base-100 bg-opacity-80 border-b border-base-200 border-opacity-50 z-50;
+  }
+
+  /* macOS 风格侧边栏 */
+  .sidebar {
+    @apply fixed top-[var(--header-height)] left-0 bottom-0 w-[var(--sidebar-width)] bg-base-100 bg-opacity-80 border-r border-base-200 border-opacity-50 flex items-center justify-center p-4;
+  }
+
+  .sidebar aside {
+    @apply w-full h-full flex flex-col items-center justify-center space-y-3;
+  }
+
+  .sidebar .menu {
+    @apply w-full rounded-lg bg-base-100 bg-opacity-80 p-2;
+  }
+
+  .sidebar .menu li {
+    @apply w-full;
+  }
+
+  .sidebar .menu li > * {
+    @apply w-full rounded-lg transition-colors duration-200 text-sm py-2 px-4;
+  }
+}
+
+/* 动画过渡 */
+@keyframes dropdownSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes modalScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slide-enter-from {
+  transform: translateX(-100%);
+}
+
+.slide-leave-to {
+  transform: translateX(-100%);
+}
+
+.scale-enter-active,
+.scale-leave-active {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scale-enter-from,
+.scale-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+} 
