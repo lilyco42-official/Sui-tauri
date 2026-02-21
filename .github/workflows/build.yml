@@ -73,8 +73,11 @@ jobs:
         working-directory: ./tauri-tools
         run: npm install # 如果有 package-lock.json，可改用 npm ci 加快速度
 
-      # 升级 tauri-action 到支持 mobile 的版本（例如 v0.7.0）
-      - uses: tauri-apps/tauri-action@v0.6.1 # 请确认实际最新版本
+      # 桌面平台：使用 tauri-action 构建并发布到 GitHub Release（不传 mobile）
+      # 桌面平台：使用 tauri-action 构建并发布到 GitHub Release（不传 mobile）
+      - name: Build desktop and upload to release
+        if: matrix.mobile != 'android'
+        uses: tauri-apps/tauri-action@v0.6.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -84,5 +87,20 @@ jobs:
           releaseBody: "See the assets to download this version and install."
           releaseDraft: true
           prerelease: false
-          mobile: ${{ matrix.mobile }}
           args: ${{ matrix.args }}
+
+      # Android 平台：手动构建 APK 并上传为 artifact
+      - name: Build Android APK
+        if: matrix.mobile == 'android'
+        working-directory: ./tauri-tools
+        run: npm run tauri android build
+
+      - name: Upload Android APK as artifact
+        if: matrix.mobile == 'android'
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk-${{ matrix.args }}
+          path: |
+            tauri-tools/src-tauri/gen/android/app/build/outputs/apk/universal/release/*.apk
+            tauri-tools/src-tauri/gen/android/app/build/outputs/apk/universal/debug/*.apk
+          if-no-files-found: error
