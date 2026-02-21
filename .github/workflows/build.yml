@@ -1,7 +1,5 @@
 name: "publish"
 
-# This workflow will trigger on each push to the `release` branch to create or update a GitHub release, build your app, and upload the artifacts to the release.
-
 on:
   push:
     branches:
@@ -15,14 +13,21 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: "macos-latest" # for Arm based macs (M1 and above).
+          - platform: "macos-latest"
             args: "--target aarch64-apple-darwin"
-          - platform: "macos-latest" # for Intel based macs.
+            mobile: ""
+          - platform: "macos-latest"
             args: "--target x86_64-apple-darwin"
+            mobile: ""
           - platform: "ubuntu-22.04"
             args: ""
+            mobile: ""
           - platform: "windows-latest"
             args: ""
+            mobile: ""
+          - platform: "ubuntu-22.04"
+            args: "--target aarch64-linux-android"
+            mobile: "android"
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -33,29 +38,54 @@ jobs:
         with:
           node-version: lts/*
 
+      # 安装 bun（关键步骤）
+      - name: setup bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
-          # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || matrix.mobile == 'android' && 'aarch64-linux-android' || '' }}
 
-      - name: install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-22.04' # This must match the platform value defined above.
+      - name: install Java (Android)
+        if: matrix.mobile == 'android'
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: install Android SDK
+        if: matrix.mobile == 'android'
+        uses: android-actions/setup-android@v3
+
+      - name: install dependencies (ubuntu desktop)
+        if: matrix.platform == 'ubuntu-22.04' && matrix.mobile != 'android'
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
+      - name: install dependencies (ubuntu android)
+        if: matrix.platform == 'ubuntu-22.04' && matrix.mobile == 'android'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev
+
+      # 在 tauri-tools 子目录下安装前端依赖
       - name: install frontend dependencies
-        run: bun install # change this to npm, pnpm or bun depending on which one you use.
+        working-directory: ./tauri-tools
+        run: bun install
 
       - uses: tauri-apps/tauri-action@v0.6.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           projectPath: "tauri-tools"
-          tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
+          tagName: app-v__VERSION__
           releaseName: "App v__VERSION__"
           releaseBody: "See the assets to download this version and install."
           releaseDraft: true
           prerelease: false
+          mobile: ${{ matrix.mobile }}
           args: ${{ matrix.args }}
