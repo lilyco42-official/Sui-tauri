@@ -88,7 +88,7 @@ jobs:
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
-
+          tauriScript: "npm run tauri" # 新增此行
       # Android 平台：手动构建 APK 并上传为 artifact
       - name: Build Android APK
         if: matrix.mobile == 'android'
